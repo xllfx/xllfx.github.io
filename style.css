@@ -264,8 +264,16 @@ body.side-mini .main-content{margin-left:calc(var(--side-mini) + 24px)}
 }
 html[data-theme="light"] .header-big{background:linear-gradient(45deg,#7b3fe4 0%,#b95cf0 50%,#5a3ad0 100%)}
 .s-search{max-width:720px;margin:0 auto;padding:0 16px}
-.s-type{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+/* 单行横滑：不换行，超宽时左右滑动（safe center：内容少时居中，溢出时自动靠左避免裁切） */
+.s-type{
+    display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+    justify-content:flex-start;justify-content:safe center;
+    scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;
+    gap:6px;margin-bottom:14px;
+}
+.s-type::-webkit-scrollbar{display:none}
 .s-type button{
+    flex:0 0 auto;white-space:nowrap;
     padding:5px 16px;border-radius:99px;font-size:13.5px;
     color:rgba(255,255,255,.82);background:rgba(255,255,255,.14);
     transition:background .18s,color .18s;
@@ -284,8 +292,16 @@ html[data-theme="light"] .header-big{background:linear-gradient(45deg,#7b3fe4 0%
     display:flex;align-items:center;justify-content:center;transition:filter .18s;
 }
 .super-search-fm button:hover{filter:brightness(1.12)}
-.s-engines{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:14px}
+/* 单行横滑：同上，引擎数量多，小屏一律横向滑动 */
+.s-engines{
+    display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
+    justify-content:flex-start;justify-content:safe center;
+    scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;
+    gap:8px;margin-top:14px;
+}
+.s-engines::-webkit-scrollbar{display:none}
 .s-engines button{
+    flex:0 0 auto;white-space:nowrap;
     padding:4px 14px;border-radius:99px;font-size:13px;
     color:rgba(255,255,255,.9);background:rgba(255,255,255,.14);transition:background .18s;
 }
@@ -364,9 +380,31 @@ html[data-theme="light"] .header-big{background:linear-gradient(45deg,#7b3fe4 0%
     background:color-mix(in srgb, var(--brand) 12%, transparent);
     border:1px solid color-mix(in srgb, var(--brand) 22%, transparent);
 }
+/* 简介行：文字可收缩（省略号），日期靠右固定不收缩 */
 .url-desc{
-    display:block;margin-top:1px;font-size:11.5px;line-height:1.35;color:var(--muted);
+    display:flex;align-items:baseline;gap:6px;min-width:0;
+    margin-top:1px;font-size:11.5px;line-height:1.35;color:var(--muted);
+}
+.url-desc-t{
+    flex:0 1 auto;min-width:0;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+/* 更新日期：靠右，等宽数字，弱化不抢视线 */
+.url-date{
+    flex:0 0 auto;margin-left:auto;padding-left:6px;
+    font-size:10.5px;color:var(--muted);opacity:.62;
+    font-variant-numeric:tabular-nums;font-feature-settings:"tnum";
+    white-space:nowrap;
+}
+/* 版本号徽章：紧跟站名（参考小雷工具箱 v2.12.4 形式） */
+.url-ver{
+    font-style:normal;flex:0 0 auto;
+    font-size:10px;font-weight:600;line-height:1.5;letter-spacing:.2px;
+    padding:0 4px;border-radius:4px;
+    color:var(--brand);
+    background:color-mix(in srgb,var(--brand) 14%,transparent);
+    border:1px solid color-mix(in srgb,var(--brand) 24%,transparent);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
 }
 
 /* ---- descMode:'fade'：默认隐藏、鼠标移入淡入 ----
@@ -420,6 +458,7 @@ body.desc-pop .url-desc{
 /* 顶部向上的纯三角：宽高归零，全靠边框撑出等腰三角形（14×7）。
    左右边框透明、下边框带色 —— 这是标准 CSS 三角画法，比旋转方块更像尖角。
    底色用 --tip-bg，与气泡本体共用同一变量，主题切换时自动同步。 */
+body.desc-pop .url-desc-t{white-space:normal;overflow:visible}
 body.desc-pop .url-desc::before{
     content:'';position:absolute;top:-7px;left:var(--tip-x,50%);
     width:0;height:0;
@@ -444,6 +483,7 @@ body.desc-pop .card:focus-visible .url-desc{opacity:1;visibility:visible;transfo
         margin-top:2px;padding:0;border:0;background:none;box-shadow:none;
         white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
+    body.desc-pop .url-desc-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
 .card:hover .url-name{color:var(--brand)}
 /* 直达按钮：默认半透明，悬停显示 */
@@ -568,6 +608,48 @@ html[data-theme="light"] .pills{background:rgba(0,0,0,.055)}
 .side-sub.on{background:color-mix(in srgb,var(--brand) 16%,transparent);color:var(--brand);font-weight:600}
 .side-sub-dot{flex:0 0 auto;width:5px;height:5px;border-radius:50%;background:var(--line)}
 .side-sub.on .side-sub-dot{background:var(--brand)}
+
+/* ---------- 顶部渐变横幅（参考小雷工具箱：蓝紫渐变推荐位）---------- */
+.promo-banner{
+    --banner-from:#4f7cff;
+    --banner-to:#8b5cf6;
+    position:relative;overflow:hidden;
+    display:flex;align-items:center;gap:14px;
+    margin-bottom:18px;padding:15px 18px;
+    border-radius:14px;
+    background:linear-gradient(120deg,var(--banner-from),var(--banner-to));
+    color:#fff;
+    box-shadow:0 8px 24px color-mix(in srgb,var(--banner-from) 32%,transparent);
+}
+/* 右上高光 + 斜纹装饰（纯装饰，不接收事件） */
+.promo-bg{
+    position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(120% 140% at 88% -20%, rgba(255,255,255,.30), transparent 62%),
+      repeating-linear-gradient(115deg, rgba(255,255,255,.07) 0 2px, transparent 2px 9px);
+}
+.promo-txt{position:relative;flex:1 1 auto;min-width:0;display:block}
+.promo-title{
+    display:block;font-size:16px;font-weight:700;line-height:1.3;letter-spacing:.3px;
+}
+.promo-desc{
+    display:block;margin-top:3px;font-size:12.5px;line-height:1.45;
+    color:rgba(255,255,255,.86);
+}
+.promo-btn{
+    position:relative;flex:0 0 auto;
+    padding:7px 15px;border-radius:9px;
+    background:rgba(255,255,255,.95);color:#2b2f36;
+    font-size:12.5px;font-weight:600;text-decoration:none;
+    transition:transform .2s ease,background .2s ease;
+}
+.promo-btn:hover{transform:translateY(-1px);background:#fff}
+@media (max-width:600px){
+    .promo-banner{padding:13px 14px;gap:10px;margin-bottom:14px}
+    .promo-title{font-size:14.5px}
+    .promo-desc{font-size:11.5px}
+    .promo-btn{padding:6px 12px;font-size:12px}
+}
 
 /* ---------- 世界时钟（参考一为导航 io-world-clock，改横向细长条）---------- */
 .clock-box{
