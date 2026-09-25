@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>我的导航</title>
+<meta name="description" content="精选每一个链接">
+
+<script>
+(function(){
+  var t=null;
+  try{ t=localStorage.getItem('nav-theme'); }catch(e){}
+  if(!t){ try{ t=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark'; }catch(e){ t='dark'; } }
+  document.documentElement.setAttribute('data-theme',t);
+})();
+</script>
+
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主内容</a>
+
+<div class="page-container">
+
+  <!-- ============ 左侧栏 ============ -->
+  <aside id="sidebar" class="sidebar" aria-label="分类导航">
+    <div class="side-logo">
+      <a class="side-logo-link" href="#top">
+        <span class="side-logo-ico" id="side-logo">🧭</span>
+        <span class="side-logo-txt" id="side-logo-txt">我的导航</span>
+      </a>
+    </div>
+
+    <nav class="side-menu" id="side-menu"></nav>
+
+    <div class="side-foot">
+      <button class="side-extra" id="theme-btn"><i id="theme-ico">🌙</i><span>主题切换</span></button>
+    </div>
+    <button class="side-close" id="side-close" aria-label="关闭菜单">×</button>
+  </aside>
+  <div class="side-mask" id="side-mask"></div>
+
+  <!-- ============ 主内容 ============ -->
+  <div class="main-content">
+
+    <!-- 顶栏（一糖模式：左菜单 + 右搜索/主题） -->
+    <header id="header" class="page-header">
+      <div class="navbar">
+        <div class="navbar-inner">
+          <div class="nav-left">
+            <button class="mobile-menu" id="mobile-menu" aria-label="打开菜单" aria-expanded="false">
+              <span></span><span></span><span></span>
+            </button>
+            <a class="navbar-brand" href="#top"><span id="brand-txt">我的导航</span></a>
+            <ul class="site-menu" id="top-menu"></ul>
+          </div>
+          <div class="navbar-right">
+            <span class="hitokoto" id="hitokoto"></span>
+            <button class="icon-btn" id="search-btn" aria-label="站内搜索">🔍</button>
+            <button class="icon-btn" id="theme-btn2" aria-label="切换主题">🌙</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 大 banner + 超级搜索 -->
+    <div class="header-big" id="header-big">
+      <div class="s-search">
+        <div class="s-type" id="s-type"></div>
+        <form class="super-search-fm" id="search-form">
+          <input type="text" id="search-text" class="search-key" placeholder="输入关键词搜索…" autocomplete="off">
+          <button type="submit" aria-label="搜索">🔍</button>
+        </form>
+        <div class="s-engines" id="s-engines"></div>
+      </div>
+    </div>
+
+    <!-- 主体 -->
+    <main id="main">
+      <!-- 世界时钟（参考一为导航 io-world-clock：横向滚动、可显示秒） -->
+      <div class="clock-box" id="clock-box" hidden></div>
+
+      <!-- 精选五宫格 -->
+      <div class="feat-box" id="feat-box"></div>
+      <div id="sections"></div>
+      <div class="empty" id="empty" hidden>没有找到匹配的网站</div>
+    </main>
+
+    <footer class="foot" id="foot"></footer>
+  </div>
+</div>
+
+<!-- 站内搜索弹层 -->
+<div class="modal" id="site-search" hidden>
+  <div class="modal-box">
+    <div class="modal-head">
+      <input type="text" id="inner-search" placeholder="搜索本站收录的网站…" autocomplete="off">
+      <button class="modal-close" id="inner-close" aria-label="关闭">×</button>
+    </div>
+    <div class="modal-body" id="inner-result"></div>
+  </div>
+</div>
+
+<div class="lang-wrap" id="lang-wrap">
+  <button class="lang-btn" id="lang-btn" aria-label="切换语言" aria-expanded="false">🌐</button>
+  <div class="lang-panel" id="lang-panel" role="menu" hidden></div>
+</div>
+
+<button class="to-top" id="to-top" aria-label="返回顶部" hidden>↑</button>
+
+<script src="sites.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
