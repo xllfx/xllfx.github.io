@@ -264,13 +264,18 @@ body.side-mini .main-content{margin-left:calc(var(--side-mini) + 24px)}
 }
 html[data-theme="light"] .header-big{background:linear-gradient(45deg,#7b3fe4 0%,#b95cf0 50%,#5a3ad0 100%)}
 .s-search{max-width:720px;margin:0 auto;padding:0 16px}
-/* 单行横滑：不换行，超宽时左右滑动（safe center：内容少时居中，溢出时自动靠左避免裁切） */
+/* 单行横滑：不换行，超宽时左右滑动。
+   居中用 auto-margin（首项 margin-left:auto / 末项 margin-right:auto），
+   溢出时 auto 自动归零 → 永不裁掉第一项，兼容性优于 justify-content:safe center */
 .s-type{
     display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
-    justify-content:flex-start;justify-content:safe center;
+    justify-content:flex-start;
     scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;
+    scroll-padding-inline:2px;
     gap:6px;margin-bottom:14px;
 }
+.s-type>button:first-child{margin-left:auto}
+.s-type>button:last-child{margin-right:auto}
 .s-type::-webkit-scrollbar{display:none}
 .s-type button{
     flex:0 0 auto;white-space:nowrap;
@@ -295,10 +300,13 @@ html[data-theme="light"] .header-big{background:linear-gradient(45deg,#7b3fe4 0%
 /* 单行横滑：同上，引擎数量多，小屏一律横向滑动 */
 .s-engines{
     display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;
-    justify-content:flex-start;justify-content:safe center;
+    justify-content:flex-start;
     scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;
+    scroll-padding-inline:2px;
     gap:8px;margin-top:14px;
 }
+.s-engines>button:first-child{margin-left:auto}
+.s-engines>button:last-child{margin-right:auto}
 .s-engines::-webkit-scrollbar{display:none}
 .s-engines button{
     flex:0 0 auto;white-space:nowrap;
@@ -879,6 +887,11 @@ html[data-theme="light"] .feat-badge.b3{color:#0a6ba8}
     .navbar-inner{padding:0 12px;gap:8px}
     .header-big{padding-top:calc(var(--topbar-h) + 24px);padding-bottom:24px}
     .s-search{padding:0 12px}
+    /* 小屏紧凑化：让常见 6 个类目在 320px 宽也能一屏放下，不必滑动 */
+    .s-type{gap:5px}
+    .s-type button{padding:5px 10px;font-size:12.5px}
+    .s-engines{gap:6px}
+    .s-engines button{padding:4px 10px;font-size:12px}
     .grid{gap:8px}
     .card{padding:7px 9px;gap:8px}
     .url-img{width:26px;height:26px;font-size:12px}

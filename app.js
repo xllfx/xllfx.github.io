@@ -99,6 +99,28 @@
         }
         return out ? '<span class="url-tags">'+out+'</span>' : '';
     }
+    /* 取三语值：字符串直接用；{zh,zh-TW,en} 对象按当前语言取，缺则回退 en→zh */
+    function pickI18n(v){
+        if(v==null) return '';
+        if(typeof v==='string') return v;
+        if(typeof v==='object'){
+            if(v[curLang]!=null) return v[curLang];
+            if(v.en!=null) return v.en;
+            if(v.zh!=null) return v.zh;
+        }
+        return '';
+    }
+    /* 卡片版本号 / 更新日期（参考小雷工具箱卡片元信息）
+       可选字段：站点加 ver:'v2.12.4' 或 date:'2025-09-20' 即显示
+       未配置或 SITE.showMeta===false 时不渲染任何节点 */
+    function verHtml(v){
+        if(!v || SITE_.showMeta===false) return '';
+        return '<i class="url-ver">'+esc(v)+'</i>';
+    }
+    function dateHtml(v){
+        if(!v || SITE_.showMeta===false) return '';
+        return '<span class="url-date">'+esc(v)+'</span>';
+    }
     function hueOf(s){ var h=0,t=String(s||''); for(var i=0;i<t.length;i++) h=(h*31+t.charCodeAt(i))%360; return h; }
     function placeholder(name){
         var ch=String(name||'?').trim().charAt(0).toUpperCase()||'?';
@@ -187,21 +209,44 @@
     }
 
     /* ---------- 超级搜索 ---------- */
-    var curGroup=0, curEngine=0;
+    var curGroup=0, curEngine=0, sTypeBuilt=false, engineBuiltFor=-1;
     function renderSearch(){
         if(!GROUPS.length){ el.sType.style.display='none'; el.sEngines.style.display='none'; return; }
-        el.sType.innerHTML=GROUPS.map(function(g,i){
-            return '<button data-g="'+i+'"'+(i===curGroup?' class="on"':'')+'>'+esc(cn(g,'name'))+'</button>';
-        }).join('');
+        /* 类目按钮只构建一次：每次点击都重建 innerHTML 会丢掉横向滚动位置，
+           导致首个类目（如「常用」）被滑出视野后回不来 */
+        if(!sTypeBuilt){
+            el.sType.innerHTML=GROUPS.map(function(g,i){
+                return '<button data-g="'+i+'"'+(i===curGroup?' class="on"':'')+'>'+esc(cn(g,'name'))+'</button>';
+            }).join('');
+            el.sType.querySelectorAll('button').forEach(function(b){
+                b.addEventListener('click',function(){
+                    curGroup=+b.getAttribute('data-g'); curEngine=0; renderSearch();
+                    /* 仅在按钮被切边时滚动最小距离，不会把前面的类目推出视野 */
+                    b.scrollIntoView({block:'nearest',inline:'nearest'});
+                });
+            });
+            sTypeBuilt=true;
+        }
         el.sType.querySelectorAll('button').forEach(function(b){
-            b.addEventListener('click',function(){ curGroup=+b.getAttribute('data-g'); curEngine=0; renderSearch(); });
+            b.classList.toggle('on', +b.getAttribute('data-g')===curGroup);
         });
         var items=GROUPS[curGroup].items||[];
-        el.sEngines.innerHTML=items.map(function(e,i){
-            return '<button data-e="'+i+'"'+(i===curEngine?' class="on"':'')+'>'+esc(en(e,'name'))+'</button>';
-        }).join('');
+        /* 引擎列表仅在切换类目时重建，重建后回到最左，保证第一个引擎可见 */
+        if(engineBuiltFor!==curGroup){
+            el.sEngines.innerHTML=items.map(function(e,i){
+                return '<button data-e="'+i+'"'+(i===curEngine?' class="on"':'')+'>'+esc(en(e,'name'))+'</button>';
+            }).join('');
+            el.sEngines.querySelectorAll('button').forEach(function(b){
+                b.addEventListener('click',function(){
+                    curEngine=+b.getAttribute('data-e'); renderSearch();
+                    b.scrollIntoView({block:'nearest',inline:'nearest'});
+                });
+            });
+            el.sEngines.scrollLeft=0;
+            engineBuiltFor=curGroup;
+        }
         el.sEngines.querySelectorAll('button').forEach(function(b){
-            b.addEventListener('click',function(){ curEngine=+b.getAttribute('data-e'); renderSearch(); });
+            b.classList.toggle('on', +b.getAttribute('data-e')===curEngine);
         });
         el.searchText.placeholder=t('search_in',{name:en(items[curEngine],'name')});
     }
@@ -263,9 +308,13 @@
                     html+=  '<span class="url-info">'+
                               '<span class="url-line">'+
                                 '<span class="url-name">'+esc(s.name)+'</span>'+
+                                verHtml(s.ver)+
                                 tagsHtml(s.tags)+
                               '</span>'+
-                              '<span class="url-desc">'+esc(dn(s.desc)||hostOf(s.url))+'</span>'+
+                              '<span class="url-desc">'+
+                                '<span class="url-desc-t">'+esc(dn(s.desc)||hostOf(s.url))+'</span>'+
+                                dateHtml(s.date)+
+                              '</span>'+
                             '</span>';
                     html+='</a>';
                 });
@@ -408,6 +457,31 @@
             return d+' '+t;
         }catch(e){ return '-- --:--'; }
     }
+    /* ---------- 顶部渐变横幅（参考小雷工具箱）----------
+       主区域顶部的推荐位：蓝紫渐变背景 + 标题/描述/按钮。
+       enabled:false 时隐藏；title/desc/btn 支持字符串或 {zh,zh-TW,en} 三语对象。 */
+    function renderBanner(){
+        var box=document.getElementById('promo-banner');
+        if(!box) return;
+        var cfg=SITE_.banner;
+        if(!cfg || cfg.enabled===false){ box.hidden=true; box.innerHTML=''; return; }
+        var title=pickI18n(cfg.title), desc=pickI18n(cfg.desc), btn=pickI18n(cfg.btn);
+        if(!title && !desc){ box.hidden=true; box.innerHTML=''; return; }
+        box.hidden=false;
+        if(cfg.from&&cfg.to){
+            box.style.setProperty('--banner-from',cfg.from);
+            box.style.setProperty('--banner-to',cfg.to);
+        }
+        var h='<span class="promo-bg" aria-hidden="true"></span>'+
+              '<span class="promo-txt">'+
+                (title?'<span class="promo-title">'+esc(title)+'</span>':'')+
+                (desc?'<span class="promo-desc">'+esc(desc)+'</span>':'')+
+              '</span>';
+        if(cfg.url&&btn)
+            h+='<a class="promo-btn" href="'+esc(cfg.url)+'" target="_blank" rel="noopener">'+esc(btn)+'</a>';
+        box.innerHTML=h;
+    }
+
     function renderClock(){
         var box=document.getElementById('clock-box');
         if(!box) return;
@@ -819,7 +893,7 @@
         closeLangPanel();
         var y=window.scrollY||window.pageYOffset||0;   // 保持滚动位置
         renderBrand(); renderTopMenu(); renderFoot();
-        renderSearch(); renderClock(); renderFeatured();
+        renderSearch(); renderBanner(); renderClock(); renderFeatured();
         renderSections(); renderSideMenu();
         initLoadMore(); initSpy(); initSubFlyout();
         applyStaticI18n(); renderLangPanel();
@@ -829,7 +903,7 @@
 
     /* ---------- 启动 ---------- */
     renderBrand(); renderTopMenu(); renderFoot();
-    renderSearch(); renderClock(); renderFeatured(); renderSections(); renderSideMenu();
+    renderSearch(); renderBanner(); renderClock(); renderFeatured(); renderSections(); renderSideMenu();
     applyStaticI18n(); renderLangPanel();
     paint(document.documentElement.getAttribute('data-theme')||'dark');
     // 卡片简介显示模式：always 一直显示 / fade 悬停淡入 / pop 悬停浮层
