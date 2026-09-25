@@ -3,7 +3,7 @@
    ============================================================ */
 
 var SITE = {
-    name:   '我的导航',
+    name:   '小雷导航',
     // 侧栏常驻显示一级分类（此项已废弃：一级分类固定展开，
     // 二级分类改为鼠标移到一级上时从右侧浮出）
 
@@ -451,7 +451,7 @@ var LANGS = [
 
 /* 界面文案（{name}/{n} 为占位符）*/
 var UI_I18N = {
-    'title_suffix': { zh:'网址导航', 'zh-TW':'網址導航', en:'Web Directory' },
+    'title_suffix': { zh:'求知探索 乐于分享', 'zh-TW':'網址導航', en:'Web Directory' },
     'theme': { zh:'主题切换', 'zh-TW':'主題切換', en:'Theme' },
     'search_ph': { zh:'输入关键词搜索…', 'zh-TW':'輸入關鍵詞搜索…', en:'Search for anything…' },
     'search_in': { zh:'在 {name} 中搜索', 'zh-TW':'在 {name} 中搜索', en:'Search on {name}' },
