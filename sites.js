@@ -710,7 +710,7 @@ var DESC_I18N = {
 
 /* 站名 / 标语 / 页脚 */
 var SITE_I18N = {
-    'name': { zh:'我的导航', 'zh-TW':'我的導航', en:'My Directory' },
+    'name': { zh:'小雷导航', 'zh-TW':'小雷導航', en:'Xiaolei Directory' },
     'slogan': { zh:'求知 · 探索 · 发现', 'zh-TW':'求知 · 探索 · 發現', en:'Explore · Discover · Learn' },
     'footer': { zh:'本站仅收录公开网站链接，版权归原站所有', 'zh-TW':'本站僅收錄公開網站連結，版權歸原站所有', en:'This site lists public links only; copyright belongs to original sites' }
 };
